@@ -10,8 +10,8 @@ class User < ApplicationRecord
              uniqueness: { case_sensitive: false }
   
   has_secure_password #ユーザー新規追加時のみバリデートする
-  validates :password, length: { minimum: 6 }, presence: true #更新時にも対応
-
+  #更新時にも対応(更新時には認証不要)
+  validates :password, length: { minimum: 6 }, presence: true, allow_nil: true 
   
   #渡された文字列のハッシュ値を返す
   def self.digest(string)
