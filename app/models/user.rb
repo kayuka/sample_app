@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  attr_accessor :remember_token, :activation_token
+  attr_accessor :remember_token, :activation_token, :reset_token
   
   before_save :downcase_email
   before_create :create_activation_digest
@@ -14,6 +14,7 @@ class User < ApplicationRecord
   #更新時にも対応(更新時には認証不要)
   validates :password, length: { minimum: 6 }, presence: true, allow_nil: true 
   
+  
   #渡された文字列のハッシュ値を返す
   def self.digest(string)
     cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST:
@@ -26,13 +27,13 @@ class User < ApplicationRecord
     SecureRandom.urlsafe_base64
   end
   
-#永続セッションのためにユーザーをデータベースに格納する
+  #永続セッションのためにユーザーをデータベースに格納する
   def remember
     self.remember_token = User.new_token
     update_attribute(:remember_digest, User.digest(remember_token))
   end
   
-#渡されてたトークンがダイジェストと一致したらtrueを返す
+  #渡されてたトークンがダイジェストと一致したらtrueを返す
   def authenticated?(attribute, token)
     digest = self.send("#{attribute}_digest")
     return false if digest.nil?
@@ -43,14 +44,28 @@ class User < ApplicationRecord
     update_attribute(:remember_digest, nil)
   end
   
-#activation
+  #アカウント有効化
   def activate
     update_columns(activated: true, activated_at: Time.zone.now)
   end
   
+  #アカウント有効化用のメールを送信！
   def send_activation_email
     UserMailer.account_activation(self).deliver_now
   end
+  
+  #パスワード再設定の属性を設定
+  def create_reset_digest
+    self.reset_token = User.new_token
+    update_attribute(:reset_digest, User.digest(reset_token))
+    update_attribute(:reset_sent_at, Time.zone.now)
+  end
+  
+  #パスワードリセット用のメールを送信！
+  def send_password_reset_email
+    UserMailer.password_reset(self).deliver_now
+  end
+  
   
   private
   
