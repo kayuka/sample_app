@@ -32,9 +32,12 @@ Rails.application.configure do
   host = '80573593c77c48ecb33c8a15b9079de4.vfs.cloud9.us-east-2.amazonaws.com'
   config.action_mailer.default_url_options = { host: host, protocol: 'https'}
 
-
+   
+  #ActionMailerのビューでキャッシュをサポートするかしないか
   config.action_mailer.perform_caching = false
 
+  config.web_console.whitelisted_ips = '118.103.63.154'
+  
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 
@@ -56,5 +59,4 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
   
-  config.web_console.whitelisted_ips = '126.224.150.64'
 end
